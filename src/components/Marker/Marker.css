@@ -1,0 +1,67 @@
+.marker {
+    position: absolute;
+    width: 62px;
+    height: 60px;
+    cursor: pointer;
+    display: inline-block;
+    transform: translate(-50%, -50%);
+}
+
+.marker__icon {
+    transform: scale(0.65, 0.65);
+    filter: contrast(1);
+    position: absolute;
+    width: 62px;
+    height: 60px;
+    left: 0px;
+    top: 0px;
+    will-change: transform;
+    background-size: 62px 60px;
+    background-repeat: no-repeat;
+    transition: 0.25s cubic-bezier(0.485, 1.65, 0.545, 0.835) 0s;
+    transform-origin: 15px 60px;
+    z-index: 1;
+    background-image: url(../../assets/images/marker.svg);
+}
+
+.marker__icon:hover {
+    transform: scale(1, 1);
+    z-index: 10;
+}
+
+.marker__text {
+    width: 100%;
+    text-align: center;
+    margin-top: 10px;
+    font-weight: bold;
+    font-size: 16px;
+    color: rgb(0, 0, 0);
+    font-family: "Roboto", sans-serif;
+}
+
+
+.bounce {
+    animation-name: bounce;
+    animation-fill-mode: both;
+    animation-duration: 1s;
+}
+
+@keyframes bounce {
+    0% {
+        opacity: 0;
+        transform: translateY(-2000px);
+    }
+
+    60% {
+        opacity: 1;
+        transform: translateY(30px);
+    }
+
+    80% {
+        transform: translateY(-10px);
+    }
+
+    100% {
+        transform: translateY(0);
+    }
+}
