@@ -18,15 +18,21 @@
     will-change: transform;
     background-size: 62px 60px;
     background-repeat: no-repeat;
-    transition: 0.25s cubic-bezier(0.485, 1.65, 0.545, 0.835) 0s;
-    transform-origin: 15px 60px;
+    transition: 0.25s cubic-bezier(0.485, 1.65, 0.545, 0.835);
     z-index: 1;
     background-image: url(../../assets/images/marker.svg);
 }
 
 .marker__icon:hover {
     transform: scale(1, 1);
-    z-index: 10;
+    transform-origin: 5px 20px;
+    z-index: 999;
+}
+
+.active{
+    transform: scale(1, 1);
+    transform-origin: 5px 20px;
+    z-index: 999;
 }
 
 .marker__text {
@@ -45,6 +51,7 @@
     animation-fill-mode: both;
     animation-duration: 1s;
 }
+
 
 @keyframes bounce {
     0% {

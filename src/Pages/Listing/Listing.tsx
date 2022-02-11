@@ -3,7 +3,7 @@ import { saveAs } from 'file-saver';
 import GoogleMapReact, { Coords } from 'google-map-react';
 import { size } from 'lodash';
 import React, { FC, useEffect, useState } from 'react';
-import { Form } from 'react-bootstrap';
+import { Form, Modal } from 'react-bootstrap';
 import ReactPaginate from 'react-paginate';
 import { useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
@@ -12,8 +12,7 @@ import logo2 from '../../assets/images/logo/PropertyBot.svg';
 import logo1 from '../../assets/images/logo/SimpleLogo.png';
 import NotFoundImg from '../../assets/images/notfound-img.png';
 import Marker from '../../components/Marker/Marker';
-import ImageGalleryModal from '../../components/Modal/ImageGalleryModal';
-import Tooltip from '../../components/Tooltip/Tooltip';
+// import ImageGalleryModal from '../../components/Modal/ImageGalleryModal';
 import { getConfiguration } from '../../helpers';
 import './Listing.css';
 var HRNumbers = require('human-readable-numbers');
@@ -35,6 +34,7 @@ toast.error({
 const Listing: FC = (props: any) => {
   const params = useParams<{ id: string }>();
 
+  const [selectedPropertyId, setSelectedPropertyId] = useState('');
   const [properties, setProperties] = useState<any>([]);
   const [totalPages, setTotalPages] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
@@ -45,7 +45,12 @@ const Listing: FC = (props: any) => {
   });
   const [selectedValue, setSelectedValue] = useState('');
   const [count, setCount] = useState(0);
-  // const [isModalOpen, setIsModalOpen] = useState(false);
+  const [showId, setShowId] = useState<any>([]);
+  const [showModal, setShowModal] = useState(false);
+  const [show, setShow] = useState(false);
+
+  const handleClose = () => setShow(false);
+  const handleShow = () => setShow(true);
 
   const isSignedIn = localStorage?.getItem('token');
 
@@ -91,7 +96,7 @@ const Listing: FC = (props: any) => {
     fetch(`${apiUrl}/counties`)
       .then((response) => response.json())
       .then((data) => {
-        console.log({ data });
+        // console.log({ data });
         setPossibleAreas(data.payload);
       });
   }, []);
@@ -132,6 +137,7 @@ const Listing: FC = (props: any) => {
         lat={property.lat}
         lng={property.long}
         text={HRNumbers.toHumanString(property.price)}
+        isActive={property.id === selectedPropertyId}
       />
     );
   });
@@ -177,19 +183,24 @@ const Listing: FC = (props: any) => {
                 {properties.length} Results out of {count}
               </span>
             </div>
-            {properties && <div />}
 
             <div className="overflow-y-auto h-[75vh]">
-              {properties.map((property: any) => {
+              {properties.map((property: any, index: number) => {
                 const profit = (
                   Math.round(property.remodelCost * 150) / 100
                 ).toFixed(2);
                 return (
-                  <div className="py-2">
+                  <div
+                    key={index}
+                    onMouseEnter={(e) => setSelectedPropertyId(property.id)}
+                    onMouseLeave={(e) => setSelectedPropertyId('')}
+                    className="py-2"
+                  >
                     <div className="p-0">
                       <div
                         className="border border-gray-100  overflow-hidden flex flex-col lg:flex-row 
                                    shadow-sm hover:shadow-md "
+                        onClick={() => setShowId(property.id)}
                       >
                         <div className="p-0 w-full lg:w-4/12 h-full relative cursor-pointer">
                           <img
@@ -330,6 +341,9 @@ const Listing: FC = (props: any) => {
                 />
               </div>
             )}
+
+            {/*  */}
+            {/* {showModal ? <ModalImg /> : ''} */}
           </div>
         </div>
       </div>
