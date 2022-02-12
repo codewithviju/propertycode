@@ -1,28 +1,29 @@
-import axios from 'axios';
-import { saveAs } from 'file-saver';
-import GoogleMapReact, { Coords } from 'google-map-react';
-import { size } from 'lodash';
-import React, { FC, useEffect, useState } from 'react';
-import { Form, Modal } from 'react-bootstrap';
-import ReactPaginate from 'react-paginate';
-import { useParams } from 'react-router-dom';
-import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import logo2 from '../../assets/images/logo/PropertyBot.svg';
-import logo1 from '../../assets/images/logo/SimpleLogo.png';
-import NotFoundImg from '../../assets/images/notfound-img.png';
-import Marker from '../../components/Marker/Marker';
+import axios from "axios";
+import { saveAs } from "file-saver";
+import GoogleMapReact, { Coords } from "google-map-react";
+import { size } from "lodash";
+import React, { FC, useEffect, useState } from "react";
+import { Form, Modal } from "react-bootstrap";
+import ReactPaginate from "react-paginate";
+import { useParams } from "react-router-dom";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import logo2 from "../../assets/images/logo/PropertyBot.svg";
+import logo1 from "../../assets/images/logo/SimpleLogo.png";
+import NotFoundImg from "../../assets/images/notfound-img.png";
+import Marker from "../../components/Marker/Marker";
+import ImageGalleryModal from "../../components/Modal/ImageGalleryModal";
 // import ImageGalleryModal from '../../components/Modal/ImageGalleryModal';
-import { getConfiguration } from '../../helpers';
-import './Listing.css';
-var HRNumbers = require('human-readable-numbers');
+import { getConfiguration } from "../../helpers";
+import "./Listing.css";
+var HRNumbers = require("human-readable-numbers");
 
 const defaultProps: any = {
   zoom: 11,
 };
 
 toast.error({
-  position: 'bottom-center',
+  position: "bottom-center",
   autoClose: 2000,
   hideProgressBar: false,
   closeOnClick: true,
@@ -34,7 +35,7 @@ toast.error({
 const Listing: FC = (props: any) => {
   const params = useParams<{ id: string }>();
 
-  const [selectedPropertyId, setSelectedPropertyId] = useState('');
+  const [selectedPropertyId, setSelectedPropertyId] = useState("");
   const [properties, setProperties] = useState<any>([]);
   const [totalPages, setTotalPages] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
@@ -43,16 +44,17 @@ const Listing: FC = (props: any) => {
     lat: 41.531865,
     lng: -81.581927,
   });
-  const [selectedValue, setSelectedValue] = useState('');
+  const [selectedValue, setSelectedValue] = useState("");
   const [count, setCount] = useState(0);
   const [showId, setShowId] = useState<any>([]);
   const [showModal, setShowModal] = useState(false);
   const [show, setShow] = useState(false);
-
+  const [images, setImages] = useState([]);
+  const [close, stClose] = useState(false);
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
 
-  const isSignedIn = localStorage?.getItem('token');
+  const isSignedIn = localStorage?.getItem("token");
 
   const isPaginate = count > 20;
 
@@ -60,8 +62,8 @@ const Listing: FC = (props: any) => {
 
   useEffect(() => {
     if (!isSignedIn) {
-      toast.error('Must be signed in!');
-      props.history.push('/');
+      toast.error("Must be signed in!");
+      props.history.push("/");
     }
   }, [isSignedIn]);
 
@@ -71,7 +73,7 @@ const Listing: FC = (props: any) => {
     }
     fetch(
       `${apiUrl}/properties/${selectedValue}${
-        isPaginate ? `?page=${currentPage}` : ''
+        isPaginate ? `?page=${currentPage}` : ""
       }`
     )
       .then((response) => response.json())
@@ -114,19 +116,19 @@ const Listing: FC = (props: any) => {
     try {
       const response: any = await axios.get(
         `${apiUrl}/properties/${e.id}/csv`,
-        { responseType: 'arraybuffer' }
+        { responseType: "arraybuffer" }
       );
       var blob = new Blob([response.data], {
-        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
       });
       const fileName = `${e.address
-        .replaceAll(' ', '_')
-        .replaceAll(',', '')}-remodel-breakdown.xlsx`;
+        .replaceAll(" ", "_")
+        .replaceAll(",", "")}-remodel-breakdown.xlsx`;
       saveAs(blob, `${fileName}.xlsx`);
-      toast.success('Downloading Spreadsheet');
+      toast.success("Downloading Spreadsheet");
     } catch (error) {
       console.log(error);
-      toast.error('Error fetching Spreadsheet!');
+      toast.error("Error fetching Spreadsheet!");
     }
   };
 
@@ -144,6 +146,13 @@ const Listing: FC = (props: any) => {
 
   return (
     <>
+      // Model
+      <ImageGalleryModal
+        show={show}
+        close={!show}
+        id={showId}
+        images={images}
+      />
       <div className="container-fluid">
         <div className="pt-12 w-full flex flex-col lg:flex-row justify-between">
           <div className="p-0 flex-1 w-full lg:w-1/2 relative ">
@@ -165,7 +174,7 @@ const Listing: FC = (props: any) => {
               <div className="w-full h-[80vh]">
                 <GoogleMapReact
                   bootstrapURLKeys={{
-                    key: 'AIzaSyClDgl4m8WrgcJqZfPI1sb6eyRjJv_QhiQ',
+                    key: "AIzaSyClDgl4m8WrgcJqZfPI1sb6eyRjJv_QhiQ",
                   }}
                   center={mapCenter}
                   defaultZoom={defaultProps.zoom}
@@ -193,14 +202,18 @@ const Listing: FC = (props: any) => {
                   <div
                     key={index}
                     onMouseEnter={(e) => setSelectedPropertyId(property.id)}
-                    onMouseLeave={(e) => setSelectedPropertyId('')}
+                    onMouseLeave={(e) => setSelectedPropertyId("")}
                     className="py-2"
                   >
                     <div className="p-0">
                       <div
                         className="border border-gray-100  overflow-hidden flex flex-col lg:flex-row 
                                    shadow-sm hover:shadow-md "
-                        onClick={() => setShowId(property.id)}
+                        onClick={() => {
+                          setShowId(property.id);
+                          setShow(true);
+                          setImages(property.allImages);
+                        }}
                       >
                         <div className="p-0 w-full lg:w-4/12 h-full relative cursor-pointer">
                           <img
@@ -218,22 +231,22 @@ const Listing: FC = (props: any) => {
                           <div className="w-full md:w-1/2 flex flex-col justify-between">
                             <div className="">
                               <span className="text-[18px] font-bold">
-                                {String(property.address).split(',')[0]}
+                                {String(property.address).split(",")[0]}
                               </span>
                               <div className="text-[18px] font-bold">
                                 {String(property.address)
-                                  .split(',')
+                                  .split(",")
                                   .slice(1)
-                                  .join(',')}
+                                  .join(",")}
                               </div>
                               <span className="text-md">
                                 $
                                 {Number(property.price)
                                   .toString()
-                                  .replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                                  .replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
                               </span>
                               <div className="flex my-0 space-x-2 text-md">
-                                <span>{property.beds} BR </span>{' '}
+                                <span>{property.beds} BR </span>{" "}
                                 <span>{property.baths} BA</span>
                               </div>
                             </div>
@@ -258,27 +271,27 @@ const Listing: FC = (props: any) => {
                               <div className="flex flex-col justify-end items-center pb-3">
                                 <div className="w-full flex py-0.5 px-1 space-x-4">
                                   <span className="w-3/5 flex justify-end text-theme-linkTitle">
-                                    Total Cost{' '}
+                                    Total Cost{" "}
                                   </span>
                                   <span className="w-2/5 text-theme-smallText text-base ">
                                     $
                                     {Number(property.totalCost)
                                       .toFixed(2)
                                       .toString()
-                                      .replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                                      .replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
                                   </span>
                                 </div>
 
                                 <div className="w-full flex py-0.5 px-1 space-x-4">
                                   <span className="w-3/5 flex justify-end text-theme-linkTitle">
-                                    Remodel Cost{' '}
+                                    Remodel Cost{" "}
                                   </span>
                                   <span className="w-2/5 text-theme-smallText text-base ">
                                     $
                                     {Number(property.remodelCost)
                                       .toFixed(2)
                                       .toString()
-                                      .replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                                      .replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
                                   </span>
                                 </div>
 
@@ -290,7 +303,7 @@ const Listing: FC = (props: any) => {
                                     $
                                     {profit
                                       .toString()
-                                      .replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                                      .replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
                                   </span>
                                 </div>
 
@@ -334,10 +347,10 @@ const Listing: FC = (props: any) => {
                   pageCount={totalPages}
                   previousLabel="< "
                   marginPagesDisplayed={1}
-                  containerClassName={'paginationBttns'}
-                  previousLinkClassName={'previousBttn'}
-                  nextLinkClassName={'nextBttn'}
-                  activeClassName={'paginationActive'}
+                  containerClassName={"paginationBttns"}
+                  previousLinkClassName={"previousBttn"}
+                  nextLinkClassName={"nextBttn"}
+                  activeClassName={"paginationActive"}
                 />
               </div>
             )}
